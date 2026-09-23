@@ -1,6 +1,7 @@
+import os
+
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import os
 
 app = Flask(__name__)
 
@@ -9,9 +10,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-# Statik fayllar (css.css, js.js) o'zgarganda brauzer eskisini keshdan
-# ko'rsatmasligi uchun, har bir faylga uning o'zgartirilgan vaqtini
-# ?v=... sifatida avtomatik qo'shib beramiz.
 @app.context_processor
 def inject_cache_buster():
     def versioned_static(filename):
@@ -21,6 +19,7 @@ def inject_cache_buster():
         except OSError:
             version = 0
         return f"{url_for('static', filename=filename)}?v={version}"
+
     return dict(versioned_static=versioned_static)
 
 
