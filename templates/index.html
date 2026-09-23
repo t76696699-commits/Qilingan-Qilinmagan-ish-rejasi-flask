@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ishlar ro'yhati</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ versioned_static('css.css') }}">
+</head>
+<body>
+<header>
+    <form action="{{ url_for('add') }}" method="POST">
+        <div class="row">
+            <h1>Reja:</h1>
+            <input type="text" name="title" placeholder="rejangni kiritib tasha e" required autocomplete="off">
+            <button type="submit">bosing</button>
+        </div>
+        <div class="column">
+            <h1 style="font-size: 25px">Telefon raqam:</h1>
+            <h2 style="font-size: 22px">tel:+998 90 069 70 75</h2>
+        </div>
+        <div class="column">
+            <h1 style="font-size: 25px">Email akkaunt:</h1>
+            <h2 style="font-size: 22px">nimadir@gmail.com</h2>
+        </div>
+    </form>
+</header>
+
+<main>
+    <section>
+        <!-- QILINGAN ISHLAR -->
+        <div class="column">
+            <h1>Qilingan</h1>
+            <div class="qilingan">
+                {% for item in qilinganlar %}
+                    <div class="h2" data-id="{{ item.id }}">
+                        <h2>{{ item.title }}</h2>
+                        <div class="actions">
+                            <!-- Bajarilgan holatdan qaytarish -->
+                            <a href="{{ url_for('toggle', todo_id=item.id) }}" title="Qilinmaganga o'tkazish">
+                                <i class="fa-solid fa-rotate-left" style="color: #00ff66;"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- QILINMAGAN ISHLAR -->
+        <div class="column">
+            <h1>Qilinmagan</h1>
+            <div class="qilinmagan">
+                {% for item in qilinmaganlar %}
+                    <div class="h2" data-id="{{ item.id }}">
+                        <h2>{{ item.title }}</h2>
+                        <div class="actions">
+                            <!-- Bajarildi deb belgilash -->
+                            <a href="{{ url_for('toggle', todo_id=item.id) }}" title="Bajarildi">
+                                <i class="fa-solid fa-square-check" style="color: #00ff66;"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="{{ versioned_static('js.js') }}"></script>
+</body>
+</html>
