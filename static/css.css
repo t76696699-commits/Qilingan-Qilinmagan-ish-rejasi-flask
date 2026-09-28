@@ -17,39 +17,35 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
-body header {
+header {
     width: 100%;
-    height: 15vh;
+    height: auto !important;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 15px;
-    padding: 20px;
+    padding: 15px;
 }
-body header form{
-    width: 100%;
+
+.forms-wrapper {
     display: flex;
-    justify-content: space-around;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
     align-items: center;
-}
-body header h1 {
-    font-size: 35px;
-    color: white;
-
-    text-shadow: #777676 3px 3px 3px;
+    width: 100%;
 }
 
-body header h2 {
-    font-size: 23px;
-    color: blueviolet;
-
-    text-shadow: #310756 3px 3px 3px;
-}
-
-body header form {
+.forms-wrapper form .row {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+body header h1 {
+    font-size: 35px;
+    color: white;
+    text-shadow: #777676 3px 3px 3px;
 }
 
 body header input {
@@ -69,6 +65,15 @@ body header input::placeholder {
     color: white;
 }
 
+select {
+    height: 40px;
+    background-color: black;
+    border: black 1px solid;
+    color: white;
+    border-radius: 15px;
+    padding: 0 10px;
+}
+
 body header button {
     width: 80px;
     height: 40px;
@@ -78,7 +83,7 @@ body header button {
     color: black;
     cursor: pointer;
     box-shadow: #1e1e1e 3px 3px 3px 0px;
-    transition: 1s all;
+    transition: 0.3s all;
     font-family: 'Poppins', sans-serif;
 }
 
@@ -98,61 +103,88 @@ body section .column {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 300px;
+    width: 320px;
 }
 
 body section .column h1 {
     color: white;
     margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
-.qilingan, .qilinmagan {
-    width: 300px;
+.sirtqi_list, .ichidan_ochiladigan {
+    width: 320px;
     height: 450px;
     border: 4px darkblue solid;
     border-radius: 30px;
     backdrop-filter: blur(50px);
+    background-color: rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 0;
+    padding: 10px;
     overflow-y: auto;
     box-shadow: #020257 3px 3px 3px 0px;
-
 }
 
-.qilingan .h2, .qilinmagan .h2 {
+.main-item, .sub-item {
     background-color: black;
     border: darkblue 1px solid;
-    width: 90%;
-    min-height: 35px;
-    border-radius: 100px;
+    width: 100%;
+    min-height: 45px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 15px;
     margin: 5px 0;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
 }
 
-.qilingan .h2 h2, .qilinmagan .h2 h2 {
-    color: white;
+/* MATNLAR OQ RANGDA */
+.main-item h2, .sub-item h2 {
+    color: #ffffff !important;
     font-size: 15px;
+    font-weight: 500;
     margin: 0;
-    top: 0 !important;
 }
 
-.icons-wrapper {
+.main-item:hover {
+    transform: scale(1.02);
+    border-color: #00ff66;
+}
+
+.active-main {
+    border-color: #00ff66 !important;
+    background-color: #111133 !important;
+}
+
+.todo-left {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.icons-wrapper a {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
+.todo-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #00ff66;
 }
-.row{
-    display: flex;
-    flex-direction: row;
+
+.completed-text {
+    text-decoration: line-through !important;
+    color: #888888 !important;
+    opacity: 0.7;
+}
+
+.placeholder-text {
+    color: white;
+    font-size: 14px;
+    margin-top: 20px;
+}
+.sirtqi_list .h2 h2,
+.ichidan_ochiladigan .h2 h2 {
+    color: #ffffff !important;
 }

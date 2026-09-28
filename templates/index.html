@@ -3,62 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ishlar ro'yhati</title>
+    <title>Sirtqi va Ichki vazifalar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ versioned_static('css.css') }}">
 </head>
 <body>
 <header>
-    <form action="{{ url_for('add') }}" method="POST">
-        <div class="row">
-            <h1>Reja:</h1>
-            <input type="text" name="title" placeholder="rejangni kiritib tasha e" required autocomplete="off">
-            <button type="submit">bosing</button>
-        </div>
-        <div class="column">
-            <h1 style="font-size: 25px">Telefon raqam:</h1>
-            <h2 style="font-size: 22px">tel:+998 90 069 70 75</h2>
-        </div>
-        <div class="column">
-            <h1 style="font-size: 25px">Email akkaunt:</h1>
-            <h2 style="font-size: 22px">nimadir@gmail.com</h2>
-        </div>
-    </form>
+    <div class="forms-wrapper">
+        <!-- 1. Sirtqi vazifa qo'shish formasi -->
+        <form id="add-main-form">
+            <div class="row">
+                <h1>Sirtqi:</h1>
+                <input type="text" name="main_title" placeholder="Sirtqi vazifa nomi..." required autocomplete="off">
+                <button type="submit">Qo'shish</button>
+            </div>
+        </form>
+
+        <!-- 2. Ichki vazifa qo'shish formasi -->
+        <form id="add-sub-form">
+            <div class="row">
+                <h1>Ichki vazifa:</h1>
+                <select name="main_task_id" id="main_task_select" required>
+                    <option value="">Sirtqini tanlang</option>
+                    {% for task in main_tasks %}
+                        <option value="{{ task.id }}">{{ task.title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="sub_title" placeholder="Fan yoki tartib..." required autocomplete="off">
+                <button type="submit">Qo'shish</button>
+            </div>
+        </form>
+    </div>
 </header>
 
 <main>
     <section>
+        <!-- 1-Ustun: Sirtqi vazifalar -->
         <div class="column">
-            <h1>Qilingan</h1>
-            <div class="qilingan">
-                {% for item in qilinganlar %}
-                    <div class="h2" data-id="{{ item.id }}">
+            <h1>Sirtqi vazifalar</h1>
+            <div class="sirtqi_list">
+                {% for item in main_tasks %}
+                    <div class="h2 main-item" data-id="{{ item.id }}">
                         <h2>{{ item.title }}</h2>
-                        <div class="actions">
-                            <!-- Bajarilgan holatdan qaytarish -->
-                            <a href="{{ url_for('toggle', todo_id=item.id) }}" title="Qilinmaganga o'tkazish">
-                                <i class="fa-solid fa-rotate-left" style="color: #00ff66;"></i>
-                            </a>
-                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: #00ff66;"></i>
                     </div>
                 {% endfor %}
             </div>
         </div>
 
+        <!-- 2-Ustun: Tanlangan sirtqining Ichidagi narsalar -->
         <div class="column">
-            <h1>Qilinmagan</h1>
-            <div class="qilinmagan">
-                {% for item in qilinmaganlar %}
-                    <div class="h2" data-id="{{ item.id }}">
-                        <h2>{{ item.title }}</h2>
-                        <div class="actions">
-                            <!-- Bajarildi deb belgilash -->
-                            <a href="{{ url_for('toggle', todo_id=item.id) }}" title="Bajarildi">
-                                <i class="fa-solid fa-square-check" style="color: #00ff66;"></i>
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
+            <h1 id="subtask-header-title">Ichidagi narsalar</h1>
+            <div class="ichidan_ochiladigan">
+                <p class="placeholder-text">Sirtqi vazifalardan birini bosing...</p>
             </div>
         </div>
     </section>
