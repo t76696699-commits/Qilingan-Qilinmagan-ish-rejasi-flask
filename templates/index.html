@@ -43,6 +43,7 @@
                 {% for item in main_tasks %}
                     <div class="main-item {% if item.is_completed %}main-completed{% endif %}" data-id="{{ item.id }}">
                         <div class="todo-left">
+                            <div class="custom-checkbox main-checkbox {% if item.is_completed %}checked{% endif %}"></div>
                             <h2>{{ item.title }}</h2>
                             {% if item.is_completed %}
                                 <span class="completed-badge">✅ (Barchasi bajarildi)</span>

@@ -70,6 +70,22 @@ def add_main_task():
     return jsonify({'id': new_main.id, 'title': new_main.title, 'is_completed': False})
 
 
+@app.route('/api/main-task/toggle/<int:main_id>', methods=['POST'])
+def toggle_main_task(main_id):
+    main_task = MainTask.query.get_or_404(main_id)
+    # Agar barcha ichki vazifalar bajartirilgan bo'lsa, hammasini bajarilmagan qilamiz, aks holda hammasini bajarilgan qilamiz
+    new_state = not main_task.is_all_completed()
+
+    for sub in main_task.subtasks:
+        sub.is_done = new_state
+
+    db.session.commit()
+    return jsonify({
+        'id': main_task.id,
+        'is_completed': main_task.is_all_completed()
+    })
+
+
 @app.route('/api/main-task/delete/<int:main_id>', methods=['DELETE'])
 def delete_main_task(main_id):
     main_task = MainTask.query.get_or_404(main_id)

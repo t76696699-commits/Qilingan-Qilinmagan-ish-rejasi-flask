@@ -11,11 +11,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sirtqiList.addEventListener('click', async (e) => {
         const trashBtn = e.target.closest('.delete-main');
+        const mainCheckbox = e.target.closest('.main-checkbox');
         const item = e.target.closest('.main-item');
 
         if (!item) return;
         const mainId = item.dataset.id;
 
+        // 1. Sirtqi vazifa checkboxi bosilganda
+        if (mainCheckbox) {
+            e.stopPropagation();
+            const res = await fetch(`/api/main-task/toggle/${mainId}`, { method: 'POST' });
+            if (res.ok) {
+                const updated = await res.json();
+                updateMainStatusUI(mainId, updated.is_completed);
+
+                // Agar aktiv sirtqi vazifa bo'lsa, ichki vazifalarini ham qayta yuklaymiz
+                if (activeMainId === mainId) {
+                    loadSubtasks(mainId);
+                }
+            }
+            return;
+        }
+
+        // 2. O'chirish tugmasi bosilganda
         if (trashBtn) {
             e.stopPropagation();
             if (confirm("Ushbu sirtqi vazifani va uning barcha ichki vazifalarini o'chirmoqchimisiz?")) {
@@ -34,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // 3. Sirtqi vazifaning o'zi bosilganda (Ichini ochish uchun)
         if (activeMainId === mainId) {
             item.classList.remove('active-main');
             activeMainId = null;
@@ -134,10 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mainEl) return;
 
         const leftDiv = mainEl.querySelector('.todo-left');
+        const mainBox = leftDiv.querySelector('.main-checkbox');
         let badge = leftDiv.querySelector('.completed-badge');
 
         if (isCompleted) {
             mainEl.classList.add('main-completed');
+            if (mainBox) mainBox.classList.add('checked');
             if (!badge) {
                 badge = document.createElement('span');
                 badge.className = 'completed-badge';
@@ -146,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             mainEl.classList.remove('main-completed');
+            if (mainBox) mainBox.classList.remove('checked');
             if (badge) badge.remove();
         }
     }
@@ -170,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.dataset.id = newMain.id;
             div.innerHTML = `
                 <div class="todo-left">
+                    <div class="custom-checkbox main-checkbox"></div>
                     <h2>${newMain.title}</h2>
                 </div>
                 <div class="todo-right">
