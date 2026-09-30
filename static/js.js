@@ -9,30 +9,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let activeMainId = null;
 
-    // Sirtqi vazifa bosilganda ochish yoki qayta bosilganda yopish (toggle)
-    sirtqiList.addEventListener('click', (e) => {
+    sirtqiList.addEventListener('click', async (e) => {
+        const trashBtn = e.target.closest('.delete-main');
         const item = e.target.closest('.main-item');
+
         if (!item) return;
+        const mainId = item.dataset.id;
 
-        const clickedId = item.dataset.id;
+        if (trashBtn) {
+            e.stopPropagation();
+            if (confirm("Ushbu sirtqi vazifani va uning barcha ichki vazifalarini o'chirmoqchimisiz?")) {
+                const res = await fetch(`/api/main-task/delete/${mainId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    item.remove();
+                    const opt = mainTaskSelect.querySelector(`option[value="${mainId}"]`);
+                    if (opt) opt.remove();
 
-        // Agar allaqachon faol bo'lgan sirtqiga qayta bosilsa (yopish logic)
-        if (activeMainId === clickedId) {
+                    if (activeMainId === mainId) {
+                        activeMainId = null;
+                        resetSubtasksView();
+                    }
+                }
+            }
+            return;
+        }
+
+        if (activeMainId === mainId) {
             item.classList.remove('active-main');
             activeMainId = null;
             resetSubtasksView();
             return;
         }
 
-        // Barcha sirtqilardan 'active-main' ni olib tashlab, yangisiga qo'shish
         document.querySelectorAll('.main-item').forEach(el => el.classList.remove('active-main'));
         item.classList.add('active-main');
 
-        activeMainId = clickedId;
+        activeMainId = mainId;
         loadSubtasks(activeMainId);
     });
 
-    // Ichki vazifalar oynasini boshlang'ich holatga qaytarish funksiyasi
     function resetSubtasksView() {
         subtaskHeaderTitle.textContent = 'Ichidagi narsalar';
         ichidanOchiladigan.innerHTML = '<p class="placeholder-text">Sirtqi vazifalardan birini bosing...</p>';
@@ -45,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
         subtaskHeaderTitle.textContent = `${data.main_title} — Ichidagi narsalar`;
         ichidanOchiladigan.innerHTML = '';
+
+        updateMainStatusUI(mainId, data.is_completed);
 
         if (data.subtasks.length === 0) {
             ichidanOchiladigan.innerHTML = '<p class="placeholder-text">Hali ichki vazifalar kiritilmagan</p>';
@@ -65,31 +82,74 @@ document.addEventListener('DOMContentLoaded', () => {
         const leftDiv = document.createElement('div');
         leftDiv.className = 'todo-left';
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'todo-checkbox';
-        checkbox.checked = sub.is_done;
+        const customBox = document.createElement('div');
+        customBox.className = `custom-checkbox ${sub.is_done ? 'checked' : ''}`;
 
         const h2 = document.createElement('h2');
         h2.textContent = sub.title;
-        if (sub.is_done) h2.classList.add('completed-text');
 
-        checkbox.addEventListener('change', async () => {
+        leftDiv.appendChild(customBox);
+        leftDiv.appendChild(h2);
+
+        const rightDiv = document.createElement('div');
+        rightDiv.className = 'todo-right';
+
+        const trashBtn = document.createElement('i');
+        trashBtn.className = 'fa-solid fa-trash delete-btn delete-sub';
+        trashBtn.title = "O'chirish";
+
+        rightDiv.appendChild(trashBtn);
+
+        row.appendChild(leftDiv);
+        row.appendChild(rightDiv);
+
+        customBox.addEventListener('click', async (e) => {
+            e.stopPropagation();
             const res = await fetch(`/api/subtask/toggle/${sub.id}`, { method: 'POST' });
             if (res.ok) {
                 const updated = await res.json();
-                h2.classList.toggle('completed-text', updated.is_done);
+                customBox.classList.toggle('checked', updated.is_done);
+                updateMainStatusUI(updated.main_task_id, updated.main_is_completed);
             }
         });
 
-        leftDiv.appendChild(checkbox);
-        leftDiv.appendChild(h2);
-        row.appendChild(leftDiv);
+        trashBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const res = await fetch(`/api/subtask/delete/${sub.id}`, { method: 'DELETE' });
+            if (res.ok) {
+                const data = await res.json();
+                row.remove();
+                if (ichidanOchiladigan.children.length === 0) {
+                    ichidanOchiladigan.innerHTML = '<p class="placeholder-text">Hali ichki vazifalar kiritilmagan</p>';
+                }
+                updateMainStatusUI(data.main_task_id, data.main_is_completed);
+            }
+        });
 
         return row;
     }
 
-    // 1. Yangi Sirtqi vazifa qo'shish
+    function updateMainStatusUI(mainId, isCompleted) {
+        const mainEl = document.querySelector(`.main-item[data-id="${mainId}"]`);
+        if (!mainEl) return;
+
+        const leftDiv = mainEl.querySelector('.todo-left');
+        let badge = leftDiv.querySelector('.completed-badge');
+
+        if (isCompleted) {
+            mainEl.classList.add('main-completed');
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'completed-badge';
+                badge.textContent = '✅ (Barchasi bajarildi)';
+                leftDiv.appendChild(badge);
+            }
+        } else {
+            mainEl.classList.remove('main-completed');
+            if (badge) badge.remove();
+        }
+    }
+
     addMainForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const input = addMainForm.querySelector('input[name="main_title"]');
@@ -108,7 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement('div');
             div.className = 'main-item';
             div.dataset.id = newMain.id;
-            div.innerHTML = `<h2>${newMain.title}</h2><i class="fa-solid fa-chevron-right" style="color: #00ff66;"></i>`;
+            div.innerHTML = `
+                <div class="todo-left">
+                    <h2>${newMain.title}</h2>
+                </div>
+                <div class="todo-right">
+                    <i class="fa-solid fa-trash delete-btn delete-main" title="O'chirish"></i>
+                    <i class="fa-solid fa-chevron-right" style="color: #00ff66;"></i>
+                </div>
+            `;
             sirtqiList.appendChild(div);
 
             const option = document.createElement('option');
@@ -120,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. Yangi Ichki vazifa qo'shish
     addSubForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const mainId = mainTaskSelect.value;
@@ -145,6 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const subRow = createSubtaskElement(newSub);
                 ichidanOchiladigan.appendChild(subRow);
             }
+
+            updateMainStatusUI(mainId, newSub.main_is_completed);
             input.value = '';
         }
     });

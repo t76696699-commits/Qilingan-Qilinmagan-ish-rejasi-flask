@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sirtqi va Ichki vazifalar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ versioned_static('css.css') }}">
 </head>
 <body>
 <header>
     <div class="forms-wrapper">
-        <!-- 1. Sirtqi vazifa qo'shish formasi -->
         <form id="add-main-form">
             <div class="row">
                 <h1>Sirtqi:</h1>
@@ -19,7 +19,6 @@
             </div>
         </form>
 
-        <!-- 2. Ichki vazifa qo'shish formasi -->
         <form id="add-sub-form">
             <div class="row">
                 <h1>Ichki vazifa:</h1>
@@ -38,20 +37,26 @@
 
 <main>
     <section>
-        <!-- 1-Ustun: Sirtqi vazifalar -->
         <div class="column">
             <h1>Sirtqi vazifalar</h1>
             <div class="sirtqi_list">
                 {% for item in main_tasks %}
-                    <div class="h2 main-item" data-id="{{ item.id }}">
-                        <h2>{{ item.title }}</h2>
-                        <i class="fa-solid fa-chevron-right" style="color: #00ff66;"></i>
+                    <div class="main-item {% if item.is_completed %}main-completed{% endif %}" data-id="{{ item.id }}">
+                        <div class="todo-left">
+                            <h2>{{ item.title }}</h2>
+                            {% if item.is_completed %}
+                                <span class="completed-badge">✅ (Barchasi bajarildi)</span>
+                            {% endif %}
+                        </div>
+                        <div class="todo-right">
+                            <i class="fa-solid fa-trash delete-btn delete-main" title="O'chirish"></i>
+                            <i class="fa-solid fa-chevron-right" style="color: #00ff66;"></i>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- 2-Ustun: Tanlangan sirtqining Ichidagi narsalar -->
         <div class="column">
             <h1 id="subtask-header-title">Ichidagi narsalar</h1>
             <div class="ichidan_ochiladigan">
